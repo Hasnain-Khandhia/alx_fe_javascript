@@ -4,6 +4,23 @@ let quotes = [
   { text: "Life is what happens when you're busy making other plans.", category: "Life" },
   { text: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", category: "Mindfulness" }
 ];
+// Function to import quotes from a JSON file
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  
+  fileReader.onload = function(event) {
+    try {
+      const importedQuotes = JSON.parse(event.target.result);
+      quotes.push(...importedQuotes);
+      saveQuotes();
+      alert('Quotes imported successfully!');
+    } catch (error) {
+      alert('Invalid JSON file');
+    }
+  };
+
+  fileReader.readAsText(event.target.files[0]);
+}
 
 // Function to display a random quote from the quotes array
 function showRandomQuote() {
