@@ -130,3 +130,18 @@ showRandomQuote();
 
 // Create and inject the add quote form when the page loads
 createAddQuoteForm();
+// Function to export quotes as a JSON file
+function exportToJsonFile() {
+  const dataStr = JSON.stringify(quotes, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  // Create a download link and trigger it
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'quotes.json';
+  a.click();
+
+  // Clean up
+  URL.revokeObjectURL(url);
+}
