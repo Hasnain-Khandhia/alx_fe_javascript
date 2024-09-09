@@ -162,3 +162,90 @@ function exportToJsonFile() {
   // Clean up
   URL.revokeObjectURL(url);
 }
+let quotes = [];
+
+// Load quotes from localStorage
+function loadQuotes() {
+  const savedQuotes = localStorage.getItem('quotes');
+  if (savedQuotes) {
+    quotes = JSON.parse(savedQuotes);
+  } else {
+    quotes = [
+      { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+      { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Inspiration" },
+    ];
+  }
+}
+
+// Save quotes to localStorage
+function saveQuotes() {
+  localStorage.setItem('quotes', JSON.stringify(quotes));
+}
+
+// Populate categories in the dropdown
+function populateCategories() {
+  const categoryFilter = document.getElementById("categoryFilter");
+  const categories = [...new Set(quotes.map(quote => quote.category))];
+  
+  categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+  });
+}
+
+// Filter quotes by selected category
+function filterQuotes() {
+  const selectedCategory = document.getElementById("categoryFilter").value;
+  const quoteDisplay = document.getElementById("quoteDisplay");
+  
+  quoteDisplay.innerHTML = '';
+  
+  const filteredQuotes = selectedCategory === 'all' 
+    ? quotes 
+    : quotes.filter(quote => quote.category === selectedCategory);
+  
+  filteredQuotes.forEach(quote => {
+    const quoteElement = document.createElement('p');
+    quoteElement.textContent = `"${quote.text}" - ${quote.category}`;
+    quoteDisplay.appendChild(quoteElement);
+  });
+
+  localStorage.setItem('selectedCategory', selectedCategory);
+}
+
+// Restore the last selected category filter
+function restoreLastSelectedFilter() {
+  const savedCategory = localStorage.getItem('selectedCategory');
+  if (savedCategory) {
+    document.getElementById('categoryFilter').value = savedCategory;
+    filterQuotes();
+  }
+}
+
+// Add a new quote and update categories
+function addQuote() {
+  const quoteText = document.getElementById('newQuoteText').value;
+  const quoteCategory = document.getElementById('newQuoteCategory').value;
+
+  if (quoteText && quoteCategory) {
+    quotes.push({ text: quoteText, category: quoteCategory });
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+    
+    document.getElementById('newQuoteText').value = '';
+    document.getElementById('newQuoteCategory').value = '';
+  } else {
+    alert("Please enter both a quote and a category.");
+  }
+}
+
+// Initialize the app
+window.onload = function() {
+  loadQuotes();
+  populateCategories();
+  restoreLastSelectedFilter();
+};
