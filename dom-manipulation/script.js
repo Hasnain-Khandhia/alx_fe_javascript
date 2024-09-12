@@ -312,7 +312,10 @@ function displayQuotes(quotes) {
     quoteDisplay.appendChild(p);
   });
 }
-
+// Function to sync quotes with the server
+function syncQuotes() {
+  // URL of the mock API endpoint
+  const apiUrl = 'https://jsonplaceholder.typicode.com/posts'; // Replace with your real API endpoint
 // Function to add a new quote
 function addQuote(text, category) {
   const newQuote = { text, category };
