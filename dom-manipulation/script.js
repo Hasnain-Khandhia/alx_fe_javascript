@@ -249,3 +249,84 @@ window.onload = function() {
   populateCategories();
   restoreLastSelectedFilter();
 };
+const apiURL = 'https://jsonplaceholder.typicode.com/posts';
+let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+// Function to fetch quotes from the server
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch(apiURL);
+    const serverQuotes = await response.json();
+    mergeQuotesWithServer(serverQuotes);
+  } catch (error) {
+    console.error('Error fetching quotes:', error);
+  }
+}
+
+// Function to post a new quote to the server
+async function postQuoteToServer(newQuote) {
+  try {
+    const response = await fetch(apiURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newQuote),
+    });
+    const result = await response.json();
+    console.log('Posted quote to server:', result);
+  } catch (error) {
+    console.error('Error posting quote:', error);
+  }
+}
+
+// Function to merge local and server quotes
+function mergeQuotesWithServer(serverQuotes) {
+  const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+  
+  // Check for conflicts
+  const conflicts = localQuotes.filter(localQuote =>
+    serverQuotes.some(serverQuote => serverQuote.text === localQuote.text)
+  );
+
+  if (conflicts.length > 0) {
+    alert('Conflict detected! Merging quotes.');
+  }
+
+  const mergedQuotes = [
+    ...serverQuotes,
+    ...localQuotes.filter(localQuote => !serverQuotes.some(serverQuote => serverQuote.text === localQuote.text))
+  ];
+  
+  localStorage.setItem('quotes', JSON.stringify(mergedQuotes));
+  displayQuotes(mergedQuotes);
+}
+
+// Function to display quotes
+function displayQuotes(quotes) {
+  const quoteDisplay = document.getElementById('quoteDisplay');
+  quoteDisplay.innerHTML = '';
+  quotes.forEach(quote => {
+    const p = document.createElement('p');
+    p.textContent = `${quote.text} - ${quote.category}`;
+    quoteDisplay.appendChild(p);
+  });
+}
+
+// Function to add a new quote
+function addQuote(text, category) {
+  const newQuote = { text, category };
+  quotes.push(newQuote);
+  localStorage.setItem('quotes', JSON.stringify(quotes));
+  
+  // Post the new quote to the server
+  postQuoteToServer(newQuote);
+  
+  displayQuotes(quotes);
+}
+
+// Periodic sync
+setInterval(fetchQuotesFromServer, 60000); // Fetch every minute
+
+// Call fetch on page load
+window.onload = fetchQuotesFromServer;
