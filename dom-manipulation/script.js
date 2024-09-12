@@ -262,6 +262,24 @@ async function fetchQuotesFromServer() {
     console.error('Error fetching quotes:', error);
   }
 }
+      // Check for new or updated quotes from the server
+      serverQuotes.forEach(serverQuote => {
+        if (!localQuotesMap.has(serverQuote.title) || 
+            JSON.stringify(localQuotesMap.get(serverQuote.title)) !== JSON.stringify(serverQuote)) {
+          localQuotesMap.set(serverQuote.title, serverQuote);
+        }
+      });
+
+      // Update local quotes with the synced data
+      quotes = Array.from(localQuotesMap.values());
+      localStorage.setItem('quotes', JSON.stringify(quotes));
+      displayQuotes();
+
+      // Notify the user that quotes have been synced
+      alert('Quotes synced with server!');
+    })
+    .catch(error => console.error('Error syncing data:', error));
+}
 
 // Function to post a new quote to the server
 async function postQuoteToServer(newQuote) {
